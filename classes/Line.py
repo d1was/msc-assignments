@@ -7,24 +7,61 @@ class Line:
         self.point_b = point_b
 
     def check_betweenness(self, point_c: Point):
-        points = [self.point_a, self.point_b]
-        def sort_by_x(point):
-            return point.x
-        points.sort(key=sort_by_x)
+        if not self.collinear(point_c):
+            return False
 
-        if point_c.x >= points[0].x and point_c.x <= points[1].x and point_c.y >= points[0].y and point_c.y <= points[1].y :
-                return True
+        if self.point_a.x != self.point_b.x:
+            return ( (self.point_a.x <= point_c.x) and (point_c.x <= self.point_b.x) ) or ( (self.point_a.x >= point_c.x) and (point_c.x >= self.point_b.x) )
+        else:
+            return ( (self.point_a.y <= point_c.y) and (point_c.y <= self.point_b.y) ) or ( (self.point_a.y >= point_c.y) and (point_c.y >= self.point_b.y) )
 
-    def check_turn_test(self, point_c: Point):
+
+    def area(self, point_c: Point):
         # cross product of three vector p0,p1,p2 = (x1-x0)(y2-y0) - (x2-x0)(y1-y0)
         area = (self.point_b.x - self.point_a.x) * (point_c.y - self.point_a.y) - (point_c.x - self.point_a.x) * (self.point_b.y - self.point_a.y)
         area = int(area)
-        if area == 0:
-            return "colinear"
-        elif area > 0:
-            return "leftturn"
+        return area
+
+    def left_turn(self, point_c: Point):
+        return self.area(point_c) > 0
+
+    def right_turn(self, point_c: Point):
+        return self.area(point_c) < 0
+
+    def collinear(self, point_c: Point):
+        return self.area(point_c) == 0
+
+    def intersection_proper(self, second_line: "Line"):
+        a = self.point_a
+        b = self.point_b
+        c = second_line.point_a
+        d = second_line.point_b
+
+        if(
+            self.collinear(a,b,c) or
+            self. collinear(a,b,d) or
+            self.collinear(c,d,a) or
+            self.collinear(c,d,b)
+        ):
+            return False
+
+        return self.xor( self.left_turn(a,b,c), self.left_turn(a,b,d)) and self.xor( self.left_turn(a,b,c), self.left_turn(c,d,b))
+
+    def xor(self, x: bool, y: bool):
+        return x ^ y
+
+    def intersection(self, second_line: "Line"):
+        a = self.point_a
+        b = self.point_b
+        c = second_line.point_a
+        d = second_line.point_b
+        if self.intersection_proper(second_line):
+            return True
+        elif(self.check_betweenness(second_line) or self.check_betweenness(a,b,d) or
+            self.check_betweenness(c,d,a) or self.check_betweenness(c,d,b)):
+            return True
         else:
-            return "rightturn"
+            return False
 
     def check_intersection(self, second_line: "Line"):
         abc_turntest = self.check_turn_test(second_line.point_a)

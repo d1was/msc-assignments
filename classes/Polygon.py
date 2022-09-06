@@ -1,6 +1,7 @@
 from classes.Point import Point
-from classes.Line import Line
+from classes.helpers import left_turn, right_turn
 import matplotlib.pyplot as plt
+
 
 class Polygon:
     points = []
@@ -16,28 +17,35 @@ class Polygon:
 
         def sort_by_angle(point):
             return midpoint.angle(point)
+
         to_sort_points.sort(key=sort_by_angle)
         return to_sort_points + [points[0]]
 
     def is_convex(self):
         is_convex = True
-        for i in range(len(self.points) - 2):
-            line = Line(self.points[i], self.points[i+1])
-            turn = line.check_turn_test(self.points[i+2])
-            if turn != "leftturn":
-                is_convex = False
-                break
+        # for i in range(len(self.points) - 2):
+
         return is_convex
 
     def print(self):
         for point in self.points:
             print(point)
 
+    def check_point_inclusion(self, query_point: Point):
+        all_Left = True
+        all_Right = True
+        for i in range(len(self.points) - 1):
+            left = left_turn(self.points[i], self.points[i + 1], query_point)
+            right = right_turn(self.points[i], self.points[i + 1], query_point)
+            if right:
+                all_Left = False
+            if left:
+                all_Right = False
+        return all_Left or all_Right
+
     def draw(self):
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
         plt.plot(x_values, y_values)
 
-
-
-#%%
+# %%
