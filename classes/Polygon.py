@@ -1,4 +1,5 @@
 from classes.Point import Point
+from classes.Line import Line
 from classes.helpers import left_turn, right_turn
 import matplotlib.pyplot as plt
 
@@ -23,8 +24,12 @@ class Polygon:
 
     def is_convex(self):
         is_convex = True
-        # for i in range(len(self.points) - 2):
-
+        for i in range(len(self.points) - 2):
+            line = Line(self.points[i], self.points[i+1])
+            print(line.point_a,line.point_b,self.points[i+2], line.left_turn(self.points[i+2]))
+            if not line.left_turn(self.points[i+2]):
+                is_convex = False
+                break
         return is_convex
 
     def print(self):
